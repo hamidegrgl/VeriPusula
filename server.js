@@ -52,5 +52,24 @@ app.post('/api/iletisim', (req, res) => {
   res.json({ ok: true });
 });
 
+// B2B sipariş / tedarik formu (birim fiyatı talep eden taraf girer)
+const KALEMLER = ['G01', 'G02', 'G03', 'G04', 'G05', 'G06', 'G07', 'G08'];
+const yuv = (n) => Math.round(n * 100) / 100;
+app.post('/api/siparis', (req, res) => {
+  const { tur, kalem, firma, yetkili, eposta, odeme, notu } = req.body || {};
+  const miktar = parseInt(req.body && req.body.miktar, 10);
+  if (!['siparis', 'tedarik'].includes(tur) || !KALEMLER.includes(kalem) || !['pesin', 'vadeli'].includes(odeme)
+    || !firma || !yetkili || !/^\S+@\S+\.\S+$/.test(eposta || '') || !(miktar > 0 && miktar <= 100000)
+    || (tur === 'siparis') !== (kalem === 'G07'))
+    return res.status(400).json({ hata: 'Eksik veya hatalı alan' });
+  const birim = yuv(parseFloat(req.body.birim_fiyat));   // fiyatı sipariş/teklif veren taraf girer
+  if (!(birim > 0 && birim <= 10000)) return res.status(400).json({ hata: 'Geçersiz birim fiyat' });
+  const toplam = yuv(birim * miktar);
+  db.prepare(`INSERT INTO siparisler (tur, kalem, firma, yetkili, eposta, miktar, odeme, birim_fiyat, toplam, notu)
+    VALUES (?,?,?,?,?,?,?,?,?,?)`).run(tur, kalem, String(firma).slice(0, 80), String(yetkili).slice(0, 80),
+    String(eposta).slice(0, 120), miktar, odeme, birim, toplam, String(notu || '').slice(0, 300));
+  res.json({ ok: true, birim_fiyat: birim, toplam });
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`VeriPusula sitesi: http://localhost:${PORT}`));
