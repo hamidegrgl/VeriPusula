@@ -5,7 +5,9 @@
     ['index.html', 'Ana Sayfa'],
     ['hakkimizda.html', 'Hakkımızda'],
     ['urunler.html', 'Ürünler'],
+    ['b2b.html', 'B2B Pazar'],
     ['departmanlar.html', 'Departmanlar'],
+    ['yonetim.html', 'Yönetim Raporu'],
     ['iletisim.html', 'İletişim']
   ];
   const aktif = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
