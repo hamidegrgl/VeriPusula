@@ -22,6 +22,16 @@ CREATE TABLE IF NOT EXISTS mesajlar (
   ad TEXT NOT NULL, eposta TEXT NOT NULL, mesaj TEXT NOT NULL,
   tarih TEXT NOT NULL DEFAULT (datetime('now','localtime'))
 );
+CREATE TABLE IF NOT EXISTS siparisler (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  tur TEXT NOT NULL CHECK (tur IN ('siparis','tedarik')),
+  kalem TEXT NOT NULL,
+  firma TEXT NOT NULL, yetkili TEXT NOT NULL, eposta TEXT NOT NULL,
+  miktar INTEGER NOT NULL CHECK (miktar > 0),
+  odeme TEXT NOT NULL CHECK (odeme IN ('pesin','vadeli')),
+  birim_fiyat REAL NOT NULL, toplam REAL NOT NULL, notu TEXT,
+  tarih TEXT NOT NULL DEFAULT (datetime('now','localtime'))
+);
 -- Açılış stokları (Şirket Tanıtım Dosyası): uzmanlık 3.300, diğer yedi bileşen 100'er, mamul 0
 INSERT OR IGNORE INTO bilesenler (kod,ad,sirket,tur,adet,birim_maliyet,kritik_seviye) VALUES
  ('G01','Enerji Modülü','EnerjiNova A.Ş.','bilesen',100,50,50),
